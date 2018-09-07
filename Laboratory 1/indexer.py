@@ -2,6 +2,7 @@ from sys import argv
 import os
 import re
 import pickle
+from scipy import spatial
 
 def getFiles(dir, suffix):
     """
@@ -62,7 +63,29 @@ for fileName in fileNames:
 pickle.dump(matches, open(dir + ".idx", "wb"))
 
 idf = computeIDF(matches, fileNames)
+tfidfs = {}
 for fileName in fileNames:
     tf = computeTF(fileWordDict[fileName])
     tfidf = computeTFIDF(tf, idf)
-    print(tfidf)
+    tfidfs[fileName] = tfidf
+
+cosineSimilarityMatrix = []
+
+cosineSimilarityMatrix.append([""] + fileNames)
+for file, tfidf in tfidfs.items():
+    row = [file]
+    for fileName in fileNames:
+        dataSetI = []
+        dataSetII = []
+        for word, val in tfidf.items():
+            dataSetI.append(val)
+            dataSetII.append(tfidfs[fileName][word] if word in tfidfs[fileName] else 0)
+        result = 1 - spatial.distance.cosine(dataSetI, dataSetII)
+        row.append(round(result, 8))
+    cosineSimilarityMatrix.append(row)
+
+s = [[str(e) for e in row] for row in cosineSimilarityMatrix]
+lens = [max(map(len, col)) for col in zip(*s)]
+fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
+table = [fmt.format(*row) for row in s]
+print('\n'.join(table))
