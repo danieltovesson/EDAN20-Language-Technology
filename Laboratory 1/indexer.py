@@ -21,11 +21,14 @@ file_names = get_files(dir, ".txt")
 matches = {}
 
 for file_name in file_names:
-    file_object  = open(dir+"/"+file_name).read()
+    file_object  = open(dir + "/" + file_name).read()
     for match in re.finditer(r"\w+", file_object.lower()):
         if match.group(0) in matches:
-            matches[match.group(0)].append(match.start())
+            if file_name in matches[match.group(0)]:
+                matches[match.group(0)][file_name].append(match.start())
+            else:
+                matches[match.group(0)][file_name] = [match.start()]
         else:
-            matches[match.group(0)] = [match.start()]
+            matches[match.group(0)] = {file_name: [match.start()]}
 
 pickle.dump(matches, open(dir + ".idx", "wb"))
