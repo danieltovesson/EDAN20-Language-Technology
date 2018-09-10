@@ -74,13 +74,12 @@ def extractTFIDF(matches, fileNames):
         tf = computeTF(fileWordDict[fileName])
         tfidf = computeTFIDF(tf, idf)
         tfidfs[fileName] = tfidf
-    return (tfidf,tfidfs)
+    return tfidfs
 
-# Calculates the cosineSimilarityMatrix, comparing the tf-idf values.
-def calcCosineSimilarityMatrix(tfidf, tfidfs, fileNames):
+# Calculates the cosineSimilarityMatrix, comparing the TF-IDF values.
+def calcCosineSimilarityMatrix(tfidfs, fileNames):
     from scipy import spatial
     cosineSimilarityMatrix = []
-    tfidf,tfidfs = extractTFIDF(matches, fileNames);
     cosineSimilarityMatrix.append([""] + fileNames)
     for file, tfidf in tfidfs.items():
         row = [file]
@@ -103,11 +102,10 @@ def makeMatrixPretty(cosineSimilarityMatrix):
     table = [fmt.format(*row) for row in s]
     print('\n'.join(table))
 
-
 # Run program from terminal: ´python indexer.py selma´.
 # Make sure that scipy is installed.
 dir = argv[1]
 (fileNames, matches, fileWordDict) = indexMaker(dir)
-(tfidf, tfidfs) = extractTFIDF(matches, fileNames)
-cosineMatrix = calcCosineSimilarityMatrix(tfidf, tfidfs, fileNames)
+tfidfs = extractTFIDF(matches, fileNames)
+cosineMatrix = calcCosineSimilarityMatrix(tfidfs, fileNames)
 makeMatrixPretty(cosineMatrix)
