@@ -1,11 +1,8 @@
 from sys import argv
-import os
-import re
-import pickle
-from scipy import spatial
 
-#premade method that was supported from assignment description.
+# Premade method that was supported from assignment description.
 def getFiles(dir, suffix):
+    import os
     """
     Returns all the files in a folder ending with suffix
     :param dir:
@@ -17,14 +14,16 @@ def getFiles(dir, suffix):
         if file.endswith(suffix):
             files.append(file)
     return files
-#calculate TF
+
+# Calculate TF
 def computeTF(wordDict):
     tfDict = {}
     bowCount = sum(wordDict.values())
     for word, count in wordDict.items():
         tfDict[word] = count/float(bowCount)
     return tfDict
-#calculate IDF
+
+# Calculate IDF
 def computeIDF(wordPositions, fileNames):
     import math
     idfDict = {}
@@ -34,15 +33,18 @@ def computeIDF(wordPositions, fileNames):
         idfDict[word] = math.log10(N / float(len(val)))
 
     return idfDict
-#combines and calculates TF-IDF values.
+
+# Combines and calculates TF-IDF values.
 def computeTFIDF(tf, idf):
     tfidf = {}
     for word, val in tf.items():
         tfidf[word] = val*idf[word]
     return tfidf
-#creates a index file aswell as returning useful
-#vectors in order to calculate TF-IDF values.
+
+# Creates a index file aswell as returning useful vectors in order to calculate TF-IDF values.
 def indexMaker(dir):
+    import re
+    import pickle
     fileNames = getFiles(dir, ".txt")
     matches = {}
     fileWordDict = {}
@@ -64,7 +66,7 @@ def indexMaker(dir):
     pickle.dump(matches, open(dir + ".idx", "wb"))
     return (fileNames, matches, fileWordDict)
 
-#computes TF and IDF values and returns them for cosine similary matrix.
+# Computes TF and IDF values and returns them for cosine similary matrix.
 def extractTFIDF(matches, fileNames):
     idf = computeIDF(matches, fileNames)
     tfidfs = {}
@@ -74,9 +76,9 @@ def extractTFIDF(matches, fileNames):
         tfidfs[fileName] = tfidf
     return (tfidf,tfidfs)
 
-
-#calculates thte cosineSimilarityMatrix, comparing the tf-idf values.
+# Calculates the cosineSimilarityMatrix, comparing the tf-idf values.
 def calcCosineSimilarityMatrix(tfidf, tfidfs, fileNames):
+    from scipy import spatial
     cosineSimilarityMatrix = []
     tfidf,tfidfs = extractTFIDF(matches, fileNames);
     cosineSimilarityMatrix.append([""] + fileNames)
@@ -93,7 +95,7 @@ def calcCosineSimilarityMatrix(tfidf, tfidfs, fileNames):
         cosineSimilarityMatrix.append(row)
     return cosineSimilarityMatrix
 
-#formats the cosineSimilarityMatrix so that it is readable.
+# Formats the cosineSimilarityMatrix so that it is readable.
 def makeMatrixPretty(cosineSimilarityMatrix):
     s = [[str(e) for e in row] for row in cosineSimilarityMatrix]
     lens = [max(map(len, col)) for col in zip(*s)]
@@ -102,10 +104,10 @@ def makeMatrixPretty(cosineSimilarityMatrix):
     print('\n'.join(table))
 
 
-#run program from terminal: ´python indexer.py selma´
-#make sure that scipy is installed.
+# Run program from terminal: ´python indexer.py selma´.
+# Make sure that scipy is installed.
 dir = argv[1]
 (fileNames, matches, fileWordDict) = indexMaker(dir)
-(tfidf,tfidfs)=extractTFIDF(matches,fileNames)
-cosineMatrix = calcCosineSimilarityMatrix(tfidf,tfidfs,fileNames)
+(tfidf, tfidfs) = extractTFIDF(matches, fileNames)
+cosineMatrix = calcCosineSimilarityMatrix(tfidf, tfidfs, fileNames)
 makeMatrixPretty(cosineMatrix)
