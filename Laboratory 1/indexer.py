@@ -30,7 +30,7 @@ def computeIDF(wordPositions, fileNames):
     N = len(fileNames)
 
     for word, val in wordPositions.items():
-        idfDict[word] = math.log10(N / float(len(val)))
+        idfDict[word] = -math.log10(float(len(val)) / N)
 
     return idfDict
 
@@ -43,7 +43,7 @@ def computeTFIDF(tf, idf):
 
 # Creates a index file aswell as returning useful vectors in order to calculate TF-IDF values.
 def indexMaker(dir):
-    import re
+    import regex as re
     import pickle
     fileNames = getFiles(dir, ".txt")
     matches = {}
@@ -51,7 +51,7 @@ def indexMaker(dir):
     for fileName in fileNames:
         fileObject  = open(dir + "/" + fileName).read()
         fileWordDict[fileName] = {}
-        for match in re.finditer(r"\w+", fileObject.lower()):
+        for match in re.finditer("\p{L}+", fileObject.lower()):
             if match.group(0) in matches:
                 if fileName in matches[match.group(0)]:
                     matches[match.group(0)][fileName].append(match.start())
@@ -78,18 +78,25 @@ def extractTFIDF(matches, fileNames):
 
 # Calculates the cosineSimilarityMatrix, comparing the TF-IDF values.
 def calcCosineSimilarityMatrix(tfidfs, fileNames):
-    from scipy import spatial
+    import math
     cosineSimilarityMatrix = []
     cosineSimilarityMatrix.append([""] + fileNames)
+    normalizedDocs = {}
+    for fileName in fileNames:
+        normalizedDocs[fileName] = 0
+        for word, tfidf in tfidfs[fileName].items():
+            normalizedDocs[fileName] += math.pow(tfidf, 2)
+        normalizedDocs[fileName] = math.sqrt(normalizedDocs[fileName])
+
     for file, tfidf in tfidfs.items():
         row = [file]
         for fileName in fileNames:
-            dataSetI = []
-            dataSetII = []
+            result = 0
+            nominator = 0
             for word, val in tfidf.items():
-                dataSetI.append(val)
-                dataSetII.append(tfidfs[fileName][word] if word in tfidfs[fileName] else 0)
-            result = 1 - spatial.distance.cosine(dataSetI, dataSetII)
+                if word in tfidfs[fileName]:
+                    nominator += val * tfidfs[fileName][word]
+            result = nominator / (normalizedDocs[file] * normalizedDocs[fileName])
             row.append(round(result, 8))
         cosineSimilarityMatrix.append(row)
     return cosineSimilarityMatrix
