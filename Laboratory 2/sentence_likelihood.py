@@ -70,9 +70,18 @@ def buildBigramModel(tokensText, tokensSentence):
             cii1.append(0)
     for idx, value in enumerate(cii1):
         if ci[idx] != 0:
-         pw.append(value/ci[idx])
+            if value != 0:
+                pw.append(value/ci[idx])
+            else:
+                if wi1[idx] in unigramCountsText:
+                    pw.append('*backoff: ' + str(unigramCountsText[wi1[idx]]/len(tokensText)))
+                else:
+                    pw.append(0)
         else:
-         pw.append(0)
+            if wi1[idx] in unigramCountsText:
+                pw.append(unigramCountsText[wi1[idx]]/len(unigramCountsText))
+            else:
+                pw.append(0)
 
     bigramModel.append(wi)
     bigramModel.append(wi1)
