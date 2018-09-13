@@ -96,16 +96,22 @@ def flipMatrix(matrix):
                 flippedMatrix[index-1].append(value) # Special case for backoff
     return flippedMatrix
 
-def calculateProbUnigrams():
-    return ['Prob. unigrams:', 0]
+def calculateProbUnigrams(wordProbability):
+    import numpy as np
+    wordProbability = cleanWordProbabilityArray(wordProbability)
+    probUnigrams = np.prod(wordProbability)
+    return ['Prob. unigrams:', probUnigrams]
 
-def calculateProbBigrams():
-    return ['Prob. bigrams:', 0]
+def calculateProbBigrams(bigramProbability):
+    import numpy as np
+    bigramProbability = cleanBigramProbabilityArray(bigramProbability)
+    probBigrams = np.prod(bigramProbability)
+    return ['Prob. bigrams:', probBigrams]
 
 def calculateGeoMeanUnigram(wordProbability):
     import numpy as np
     import math
-    wordProbability = [x for x in wordProbability if not x == 0]
+    wordProbability = cleanWordProbabilityArray(wordProbability)
     geoMeanProb = np.prod(wordProbability)
     geoMeanProb = math.pow(geoMeanProb, 1/len(wordProbability))
     return ['Geometric mean prob.:', geoMeanProb]
@@ -114,7 +120,7 @@ def calculateGeoMeanBigram(wordProbability, bigramProbability):
     import numpy as np
     import math
     bigramProbability.pop(0)
-    bigramProbability = [x for x in bigramProbability if not isinstance(x, str) and not x == 0]
+    bigramProbability = cleanBigramProbabilityArray(bigramProbability)
     geoMeanProb = np.prod(bigramProbability)
     geoMeanProb *= wordProbability[0]
     geoMeanProb = math.pow(geoMeanProb, 1/len(bigramProbability))
@@ -125,6 +131,12 @@ def calculateEntropyRate():
 
 def calculatePerplexity():
     return ['Perplexity:', 0]
+
+def cleanWordProbabilityArray(wordProbability):
+    return [x for x in wordProbability if not x == 0]
+
+def cleanBigramProbabilityArray(bigramProbability):
+    return [x for x in bigramProbability if not isinstance(x, str) and not x == 0]
 
 def printModel(model):
     import numpy as np
@@ -147,7 +159,7 @@ printModel(unigramModel)
 print('=====================================================')
 
 results = []
-results.append(calculateProbUnigrams())
+results.append(calculateProbUnigrams(wordProbability))
 results.append(calculateGeoMeanUnigram(wordProbability))
 results.append(calculateEntropyRate())
 results.append(calculatePerplexity())
@@ -166,7 +178,7 @@ printModel(bigramModel)
 print('=====================================================')
 
 results = []
-results.append(calculateProbBigrams())
+results.append(calculateProbBigrams(bigramProbability))
 results.append(calculateGeoMeanBigram(wordProbability, bigramProbability))
 results.append(calculateEntropyRate())
 results.append(calculatePerplexity())
