@@ -38,26 +38,46 @@ def buildUnigramModel(tokensText, tokensSentence):
     return unigramModel
 
 def buildBigramModel(tokensText, tokensSentence):
-    from mutual_info import count_unigrams
+    from mutual_info import count_bigrams, count_unigrams
 
     bigramModel = []
 
-    bigramCounts = count_unigrams(tokensText)
-    cw = []
-    numberOfWords = []
+    bigramCountsSentence = count_bigrams(tokensSentence)
+    bigramCountsText = count_bigrams(tokensText)
+    unigramCountsText = count_unigrams(tokensText)
+
+    wi = []
+    wi1 = []
+    cii1 = []
+    ci = []
     pw = []
 
-    for token in tokensSentence:
-        if token in bigramCounts:
-            cw.append(bigramCounts[token])
+    for bigram in bigramCountsSentence.keys():
+        wi.append(bigram[0])
+        wi1.append(bigram[1])
+    for bigram in bigramCountsSentence:
+        if bigram in bigramCountsText:
+            cii1.append(bigramCountsText[bigram])
+            if bigram[0] in unigramCountsText:
+                ci.append(unigramCountsText[bigram[0]])
+            else:
+                ci.append(0)
         else:
-            cw.append(0)
-    for cwi in cw: numberOfWords.append(len(tokensText))
-    for cwi in cw: pw.append(cwi/numberOfWords[0])
+            if bigram[0] in unigramCountsText:
+                ci.append(unigramCountsText[bigram[0]])
+            else:
+                ci.append(0)
+            cii1.append(0)
+    for idx, value in enumerate(cii1):
+        if ci[idx] != 0:
+         pw.append(value/ci[idx])
+        else:
+         pw.append(0)
 
-    bigramModel.append(tokensSentence)
-    bigramModel.append(cw)
-    bigramModel.append(numberOfWords)
+    bigramModel.append(wi)
+    bigramModel.append(wi1)
+    bigramModel.append(cii1)
+    bigramModel.append(ci)
     bigramModel.append(pw)
 
     return bigramModel
