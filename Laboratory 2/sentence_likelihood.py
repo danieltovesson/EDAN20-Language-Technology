@@ -1,14 +1,21 @@
-def buildUnigramModel():
+
+
+def generateTokens():
     import sys
-    from mutual_info import tokenize, count_unigrams
+    from mutual_info import tokenize
 
     text = sys.stdin.read().lower()
     sentence = sys.argv[1].lower()
 
-    unigramModel = []
-
     tokensText = tokenize(text)
     tokensSentence = tokenize(sentence)
+
+    return tokensText, tokensSentence
+
+def buildUnigramModel(tokensText, tokensSentence):
+    from mutual_info import count_unigrams
+
+    unigramModel = []
 
     unigramCounts = count_unigrams(tokensText)
     cw = []
@@ -30,56 +37,54 @@ def buildUnigramModel():
 
     return unigramModel
 
-def buildBigramModel():
-    import sys
-    from mutual_info import tokenize, count_bigrams
+def buildBigramModel(tokensText, tokensSentence):
+    from mutual_info import count_unigrams
 
-    text = sys.stdin.read().lower()
-    sentence = sys.argv[1].lower()
+    bigramModel = []
 
-    BigramModel = []
-
-    tokensText = tokenize(text)
-    tokensSentence = tokenize(sentence)
-
-    BigramCounts = count_bigrams(tokensText)
+    bigramCounts = count_unigrams(tokensText)
     cw = []
     numberOfWords = []
     pw = []
 
     for token in tokensSentence:
-        if token in BigramCounts:
-            cw.append(BigramCounts[token])
+        if token in bigramCounts:
+            cw.append(bigramCounts[token])
         else:
             cw.append(0)
     for cwi in cw: numberOfWords.append(len(tokensText))
     for cwi in cw: pw.append(cwi/numberOfWords[0])
 
-    BigramModel.append(tokensSentence)
-    BigramModel.append(cw)
-    BigramModel.append(numberOfWords)
-    BigramModel.append(pw)
+    bigramModel.append(tokensSentence)
+    bigramModel.append(cw)
+    bigramModel.append(numberOfWords)
+    bigramModel.append(pw)
 
-    return BigramModel
+    return bigramModel
 
-#UNIGRAMMODEL
+def printModel(model):
+    import numpy as np
+    model = np.flipud(np.rot90(model))
+    for i in model:
+        row = ''
+        for j in i:
+            row += j + '\t'
+        print(row)
+
+(tokensText, tokensSentence) = generateTokens()
 
 print('Unigram model')
 print('=====================================================')
-print('wi C(wi) #words P(wi)')
+print('wi\tC(wi)\t#words\tP(wi)')
 print('=====================================================')
-unigramModel = buildUnigramModel()
 
-for unigram in unigramModel:
-    print(unigram)
-
-#BIGRAMMODEL
+unigramModel = buildUnigramModel(tokensText, tokensSentence)
+printModel(unigramModel)
 
 print('Bigram model')
 print('=====================================================')
-print('wi wi+1 Ci,i+1 C(i) P(wi+1|wi)')
+print('wi\twi+1\tCi,i+1\tC(i)\tP(wi+1|wi)')
 print('=====================================================')
-BigramModel = buildBigramModel()
 
-for Bigram in BigramModel:
-    print(Bigram)
+bigramModel = buildBigramModel(tokensText, tokensSentence)
+printModel(bigramModel)
