@@ -30,11 +30,19 @@ def buildUnigramModel():
 
     return unigramModel
 
+def printModel(model):
+    import numpy as np
+    model = np.flipud(np.rot90(model))
+    for i in model:
+        row = ''
+        for j in i:
+            row += j + '\t'
+        print(row)
+
 print('Unigram model')
 print('=====================================================')
-print('wi C(wi) #words P(wi)')
+print('wi\tC(wi)\t#words\tP(wi)')
 print('=====================================================')
 unigramModel = buildUnigramModel()
 
-for unigram in unigramModel:
-    print(unigram)
+printModel(unigramModel)
