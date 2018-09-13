@@ -1,6 +1,6 @@
 def buildUnigramModel():
     import sys
-    from count import tokenize, count_unigrams
+    from mutual_info import tokenize, count_unigrams
 
     text = sys.stdin.read().lower()
     sentence = sys.argv[1].lower()
