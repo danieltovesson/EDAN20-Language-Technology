@@ -153,7 +153,7 @@ print('=====================================================')
 print('wi\tC(wi)\t#words\tP(wi)')
 print('=====================================================')
 
-(unigramModel, wordProbability) = buildUnigramModel(tokensText, tokensSentence)
+unigramModel, wordProbability = buildUnigramModel(tokensText, tokensSentence)
 printModel(unigramModel)
 
 print('=====================================================')
