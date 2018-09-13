@@ -1,5 +1,3 @@
-
-
 def generateTokens():
     import sys
     from mutual_info import tokenize
@@ -35,7 +33,7 @@ def buildUnigramModel(tokensText, tokensSentence):
     unigramModel.append(numberOfWords)
     unigramModel.append(pw)
 
-    return unigramModel
+    return (unigramModel, pw)
 
 def buildBigramModel(tokensText, tokensSentence):
     from mutual_info import count_bigrams, count_unigrams
@@ -89,7 +87,26 @@ def buildBigramModel(tokensText, tokensSentence):
     bigramModel.append(ci)
     bigramModel.append(pw)
 
-    return bigramModel
+    return (bigramModel, pw)
+
+def calculateGeoMeanUnigram(pw):
+    import math
+    prob = 1
+    for val in pw:
+        prob *= val
+    prob = math.pow(prob, 1/len(pw))
+    return [['Geometric mean prob.:'], [prob]]
+
+def calculateGeoMeanBigram(pwUni, pwBi):
+    import math
+    prob = 1
+    pwBi[0] = pwUni[0]
+    for val in pwUni:
+        if isinstance(val, str):
+            val = val.replace('*backoff: ', '')
+        prob *= val
+    prob = math.pow(prob, 1/len(pwBi))
+    return [['Geometric mean prob.:'], [prob]]
 
 def printModel(model):
     import numpy as np
@@ -107,13 +124,25 @@ print('=====================================================')
 print('wi\tC(wi)\t#words\tP(wi)')
 print('=====================================================')
 
-unigramModel = buildUnigramModel(tokensText, tokensSentence)
+(unigramModel, pwUni) = buildUnigramModel(tokensText, tokensSentence)
 printModel(unigramModel)
+
+print('=====================================================')
+
+printModel(calculateGeoMeanUnigram(pwUni))
+
+print('\n')
 
 print('Bigram model')
 print('=====================================================')
 print('wi\twi+1\tCi,i+1\tC(i)\tP(wi+1|wi)')
 print('=====================================================')
 
-bigramModel = buildBigramModel(tokensText, tokensSentence)
+(bigramModel, pwBi) = buildBigramModel(tokensText, tokensSentence)
 printModel(bigramModel)
+
+print('=====================================================')
+
+printModel(calculateGeoMeanBigram(pwUni, pwBi))
+
+print('\n')
