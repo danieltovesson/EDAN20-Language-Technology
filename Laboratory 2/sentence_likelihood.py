@@ -126,11 +126,15 @@ def calculateGeoMeanBigram(wordProbability, bigramProbability):
     geoMeanProb = math.pow(geoMeanProb, 1/len(bigramProbability))
     return ['Geometric mean prob.:', geoMeanProb]
 
-def calculateEntropyRate():
-    return ['Entropy rate:', 0]
+def calculateEntropyRate(wordProbability):
+    import math
+    sentence_prob = calculateProbBigrams(wordProbability)[1]
+    entropy_rate = -1/len(wordProbability)*math.log(sentence_prob, 2)
+    return ['Entropy rate:', entropy_rate]
 
-def calculatePerplexity():
-    return ['Perplexity:', 0]
+def calculatePerplexity(wordProbability):
+    perplexity = pow(2, calculateEntropyRate(wordProbability)[1])
+    return ['Perplexity:', perplexity]
 
 def cleanWordProbabilityArray(wordProbability):
     return [x for x in wordProbability if not x == 0]
@@ -161,8 +165,8 @@ print('=====================================================')
 results = []
 results.append(calculateProbUnigrams(wordProbability))
 results.append(calculateGeoMeanUnigram(wordProbability))
-results.append(calculateEntropyRate())
-results.append(calculatePerplexity())
+results.append(calculateEntropyRate(wordProbability))
+results.append(calculatePerplexity(wordProbability))
 printModel(results)
 
 print('\n')
@@ -180,8 +184,8 @@ print('=====================================================')
 results = []
 results.append(calculateProbBigrams(bigramProbability))
 results.append(calculateGeoMeanBigram(wordProbability, bigramProbability))
-results.append(calculateEntropyRate())
-results.append(calculatePerplexity())
+results.append(calculateEntropyRate(bigramProbability))
+results.append(calculatePerplexity(bigramProbability))
 printModel(results)
 
 print('\n')
