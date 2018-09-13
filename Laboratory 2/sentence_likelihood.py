@@ -14,122 +14,145 @@ def buildUnigramModel(tokensText, tokensSentence):
     from mutual_info import count_unigrams
 
     unigramModel = []
-
     unigramCounts = count_unigrams(tokensText)
-    cw = []
-    numberOfWords = []
-    pw = []
-
-    for token in tokensSentence:
-        if token in unigramCounts:
-            cw.append(unigramCounts[token])
-        else:
-            cw.append(0)
-    for cwi in cw: numberOfWords.append(len(tokensText))
-    for cwi in cw: pw.append(cwi/numberOfWords[0])
 
     unigramModel.append(tokensSentence)
-    unigramModel.append(cw)
-    unigramModel.append(numberOfWords)
-    unigramModel.append(pw)
 
-    return (unigramModel, pw)
+    wordCounts = []
+    for token in tokensSentence:
+        if token in unigramCounts:
+            wordCounts.append(unigramCounts[token])
+        else:
+            wordCounts.append(0)
+    unigramModel.append(wordCounts)
+
+    totalNumberOfWords = []
+    for word in tokensSentence: totalNumberOfWords.append(len(tokensText))
+    unigramModel.append(totalNumberOfWords)
+
+    wordProbability = []
+    for wordCount in wordCounts: wordProbability.append(wordCount/len(tokensText))
+    unigramModel.append(wordProbability)
+
+    unigramModel = flipMatrix(unigramModel)
+
+    return unigramModel, wordProbability
 
 def buildBigramModel(tokensText, tokensSentence):
-    from mutual_info import count_bigrams, count_unigrams
+    from mutual_info import count_unigrams, count_bigrams
 
     bigramModel = []
-
+    unigramCountsText = count_unigrams(tokensText)
     bigramCountsSentence = count_bigrams(tokensSentence)
     bigramCountsText = count_bigrams(tokensText)
-    unigramCountsText = count_unigrams(tokensText)
 
-    wi = []
-    wi1 = []
-    cii1 = []
-    ci = []
-    pw = []
-
+    words1 = []
+    words2 = []
     for bigram in bigramCountsSentence.keys():
-        wi.append(bigram[0])
-        wi1.append(bigram[1])
+        words1.append(bigram[0])
+        words2.append(bigram[1])
+    bigramModel.append(words1)
+    bigramModel.append(words2)
+
+    bigramCounts = []
     for bigram in bigramCountsSentence:
         if bigram in bigramCountsText:
-            cii1.append(bigramCountsText[bigram])
-            if bigram[0] in unigramCountsText:
-                ci.append(unigramCountsText[bigram[0]])
-            else:
-                ci.append(0)
+            bigramCounts.append(bigramCountsText[bigram])
         else:
-            if bigram[0] in unigramCountsText:
-                ci.append(unigramCountsText[bigram[0]])
-            else:
-                ci.append(0)
-            cii1.append(0)
-    for idx, value in enumerate(cii1):
-        if ci[idx] != 0:
-            if value != 0:
-                pw.append(value/ci[idx])
-            else:
-                if wi1[idx] in unigramCountsText:
-                    pw.append('*backoff: ' + str(unigramCountsText[wi1[idx]]/len(tokensText)))
-                else:
-                    pw.append(0)
+            bigramCounts.append(0)
+    bigramModel.append(bigramCounts)
+
+    word1Counts = []
+    for bigram in bigramCountsSentence:
+        word1 = bigram[0]
+        if word1 in unigramCountsText:
+            word1Counts.append(unigramCountsText[word1])
         else:
-            if wi1[idx] in unigramCountsText:
-                pw.append(unigramCountsText[wi1[idx]]/len(unigramCountsText))
+            word1Counts.append(0)
+    bigramModel.append(word1Counts)
+
+    bigramProbability = []
+    for i in range(len(bigramCounts)):
+        if bigramCounts[i] != 0:
+            bigramProbability.append(bigramCounts[i]/word1Counts[i])
+        else:
+            bigramProbability.append(0)
+            if words1[i] in unigramCountsText:
+                bigramProbability.append('*backoff: ' + str(unigramCountsText[words2[i]]/len(tokensText)))
+    bigramModel.append(bigramProbability)
+
+    bigramModel = flipMatrix(bigramModel)
+
+    return bigramModel, bigramProbability
+
+def flipMatrix(matrix):
+    flippedMatrix = []
+    for i in range(len(matrix[0])): flippedMatrix.append([])
+    for row in matrix:
+        for index, value in enumerate(row):
+            if index < len(flippedMatrix):
+                flippedMatrix[index].append(value)
             else:
-                pw.append(0)
+                flippedMatrix[index-1].append(value) # Special case for backoff
+    return flippedMatrix
 
-    bigramModel.append(wi)
-    bigramModel.append(wi1)
-    bigramModel.append(cii1)
-    bigramModel.append(ci)
-    bigramModel.append(pw)
+def calculateProbUnigrams():
+    return ['Prob. unigrams:', 0]
 
-    return (bigramModel, pw)
+def calculateProbBigrams():
+    return ['Prob. bigrams:', 0]
 
-def calculateGeoMeanUnigram(pw):
+def calculateGeoMeanUnigram(wordProbability):
     import math
     prob = 1
-    for val in pw:
+    for val in wordProbability:
         prob *= val
-    prob = math.pow(prob, 1/len(pw))
-    return [['Geometric mean prob.:'], [prob]]
+    prob = math.pow(prob, 1/len(wordProbability))
+    return ['Geometric mean prob.:', prob]
 
-def calculateGeoMeanBigram(pwUni, pwBi):
+def calculateGeoMeanBigram(wordProbability, bigramProbability):
     import math
     prob = 1
-    pwBi[0] = pwUni[0]
-    for val in pwUni:
+    bigramProbability[0] = wordProbability[0]
+    for val in wordProbability:
         if isinstance(val, str):
             val = val.replace('*backoff: ', '')
         prob *= val
-    prob = math.pow(prob, 1/len(pwBi))
-    return [['Geometric mean prob.:'], [prob]]
+    prob = math.pow(prob, 1/len(bigramProbability))
+    return ['Geometric mean prob.:', prob]
+
+def calculateEntropyRate():
+    return ['Entropy rate:', 0]
+
+def calculatePerplexity():
+    return ['Perplexity:', 0]
 
 def printModel(model):
     import numpy as np
-    model = np.flipud(np.rot90(model))
     for i in model:
         row = ''
         for j in i:
-            row += j + '\t'
+            row += str(j) + '\t'
         print(row)
 
-(tokensText, tokensSentence) = generateTokens()
+tokensText, tokensSentence = generateTokens()
 
 print('Unigram model')
 print('=====================================================')
 print('wi\tC(wi)\t#words\tP(wi)')
 print('=====================================================')
 
-(unigramModel, pwUni) = buildUnigramModel(tokensText, tokensSentence)
+(unigramModel, wordProbability) = buildUnigramModel(tokensText, tokensSentence)
 printModel(unigramModel)
 
 print('=====================================================')
 
-printModel(calculateGeoMeanUnigram(pwUni))
+results = []
+results.append(calculateProbUnigrams())
+results.append(calculateGeoMeanUnigram(wordProbability))
+results.append(calculateEntropyRate())
+results.append(calculatePerplexity())
+printModel(results)
 
 print('\n')
 
@@ -138,11 +161,16 @@ print('=====================================================')
 print('wi\twi+1\tCi,i+1\tC(i)\tP(wi+1|wi)')
 print('=====================================================')
 
-(bigramModel, pwBi) = buildBigramModel(tokensText, tokensSentence)
+bigramModel, bigramProbability = buildBigramModel(tokensText, tokensSentence)
 printModel(bigramModel)
 
 print('=====================================================')
 
-printModel(calculateGeoMeanBigram(pwUni, pwBi))
+results = []
+results.append(calculateProbBigrams())
+results.append(calculateGeoMeanBigram(wordProbability, bigramProbability))
+results.append(calculateEntropyRate())
+results.append(calculatePerplexity())
+printModel(results)
 
 print('\n')
