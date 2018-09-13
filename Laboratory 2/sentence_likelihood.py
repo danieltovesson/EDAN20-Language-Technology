@@ -103,23 +103,22 @@ def calculateProbBigrams():
     return ['Prob. bigrams:', 0]
 
 def calculateGeoMeanUnigram(wordProbability):
+    import numpy as np
     import math
-    prob = 1
-    for val in wordProbability:
-        prob *= val
-    prob = math.pow(prob, 1/len(wordProbability))
-    return ['Geometric mean prob.:', prob]
+    geoMeanProb = np.prod(wordProbability)
+    geoMeanProb = math.pow(geoMeanProb, 1/len(wordProbability))
+    return ['Geometric mean prob.:', geoMeanProb]
 
 def calculateGeoMeanBigram(wordProbability, bigramProbability):
+    import numpy as np
     import math
-    prob = 1
-    bigramProbability[0] = wordProbability[0]
-    for val in wordProbability:
-        if isinstance(val, str):
-            val = val.replace('*backoff: ', '')
-        prob *= val
-    prob = math.pow(prob, 1/len(bigramProbability))
-    return ['Geometric mean prob.:', prob]
+    print(bigramProbability)
+    bigramProbability.pop(0)
+    bigramProbability = [x for x in bigramProbability if not isinstance(x, str) and not x == 0]
+    geoMeanProb = np.prod(bigramProbability)
+    geoMeanProb *= wordProbability[0]
+    geoMeanProb = math.pow(geoMeanProb, 1/len(bigramProbability))
+    return ['Geometric mean prob.:', geoMeanProb]
 
 def calculateEntropyRate():
     return ['Entropy rate:', 0]
