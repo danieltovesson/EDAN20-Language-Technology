@@ -105,6 +105,7 @@ def calculateProbBigrams():
 def calculateGeoMeanUnigram(wordProbability):
     import numpy as np
     import math
+    wordProbability = [x for x in wordProbability if not x == 0]
     geoMeanProb = np.prod(wordProbability)
     geoMeanProb = math.pow(geoMeanProb, 1/len(wordProbability))
     return ['Geometric mean prob.:', geoMeanProb]
@@ -112,7 +113,6 @@ def calculateGeoMeanUnigram(wordProbability):
 def calculateGeoMeanBigram(wordProbability, bigramProbability):
     import numpy as np
     import math
-    print(bigramProbability)
     bigramProbability.pop(0)
     bigramProbability = [x for x in bigramProbability if not isinstance(x, str) and not x == 0]
     geoMeanProb = np.prod(bigramProbability)
