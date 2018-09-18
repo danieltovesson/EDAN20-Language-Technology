@@ -1,12 +1,19 @@
 def generateTokens():
     import sys
+    from tokenize_sentences import findSentences
+    from tokenize_sentences import stripSentences
     from mutual_info import tokenize
 
-    text = sys.stdin.read().lower()
+    text = sys.stdin.read()
+    text = findSentences(text)
+    text = stripSentences(text)
     sentence = sys.argv[1].lower()
 
-    tokensText = tokenize(text)
+    tokensText = text.split(' ')
+    tokensText = list(filter(None, tokensText))
     tokensSentence = tokenize(sentence)
+    tokensSentence = ['<s>'] + tokensSentence
+    tokensSentence.append('</s>')
 
     return tokensText, tokensSentence
 
@@ -76,9 +83,7 @@ def buildBigramModel(tokensText, tokensSentence):
         if bigramCounts[i] != 0:
             bigramProbability.append(bigramCounts[i]/word1Counts[i])
         else:
-            bigramProbability.append(0)
-            if words1[i] in unigramCountsText:
-                bigramProbability.append('*backoff: ' + str(unigramCountsText[words2[i]]/len(tokensText)))
+            bigramProbability.append('*backoff: ' + str(unigramCountsText[words2[i]]/len(tokensText)))
     bigramModel.append(bigramProbability)
 
     bigramModel = flipMatrix(bigramModel)
@@ -90,10 +95,10 @@ def flipMatrix(matrix):
     for i in range(len(matrix[0])): flippedMatrix.append([])
     for row in matrix:
         for index, value in enumerate(row):
-            if index < len(flippedMatrix):
-                flippedMatrix[index].append(value)
+            if isinstance(value, str) and index == 8:
+                flippedMatrix[index].append("0 " + value) # Special case for backoff
             else:
-                flippedMatrix[index-1].append(value) # Special case for backoff
+                flippedMatrix[index].append(value)
     return flippedMatrix
 
 def calculateProbUnigrams(wordProbability):
@@ -140,7 +145,13 @@ def cleanWordProbabilityArray(wordProbability):
     return [x for x in wordProbability if not x == 0]
 
 def cleanBigramProbabilityArray(bigramProbability):
-    return [x for x in bigramProbability if not isinstance(x, str) and not x == 0]
+    cleaned = []
+    for index, value in enumerate(bigramProbability):
+        if isinstance(value, str):
+            cleaned.append(float(value.strip('*backoff: '))) # Special case for backoff
+        else:
+            cleaned.append(value)
+    return [x for x in cleaned if not isinstance(x, str) and not x == 0]
 
 def printModel(model):
     import numpy as np
