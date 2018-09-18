@@ -95,8 +95,8 @@ def flipMatrix(matrix):
     for i in range(len(matrix[0])): flippedMatrix.append([])
     for row in matrix:
         for index, value in enumerate(row):
-            if isinstance(value, str) and index == 8:
-                flippedMatrix[index].append("0 " + value) # Special case for backoff
+            if isinstance(value, str) and "*backoff:" in value:
+                flippedMatrix[index].append("0.0 " + value) # Special case for backoff
             else:
                 flippedMatrix[index].append(value)
     return flippedMatrix
