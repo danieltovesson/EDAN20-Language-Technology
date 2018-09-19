@@ -31,11 +31,15 @@ def train(corpus):
     :return:
     """
     pos_cnt = count_pos(corpus)
+
     # We compute the chunk distribution by POS
     chunk_dist = {key: {} for key in pos_cnt.keys()}
-    """
-    Fill in code to compute the chunk distribution for each part of speech
-    """
+    for array in corpus:
+        for dict in array:
+            if dict['chunk'] in chunk_dist[dict['pos']]:
+                chunk_dist[dict['pos']][dict['chunk']] += 1
+            else:
+                chunk_dist[dict['pos']][dict['chunk']] = 1
 
     # We determine the best association
     pos_chunk = {}
