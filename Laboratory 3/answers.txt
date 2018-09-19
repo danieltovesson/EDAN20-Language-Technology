@@ -1,2 +1,60 @@
 Baseline
 1. It only considers the chunk tag most frequently associated with the current part-of-speech tag so it does not consider other chunk tags and thereby the baseline is lower.
+
+
+Using Machine Learning
+
+1. A list of features, where each feature vector is a dictionary. It is the same vector used.
+2. Very good performance => 0.95.
+3. Yes, down to 0.92.
+4. The classifier used is linear_model. This produces:
+______________________________________________________
+precision    recall  f1-score   support
+
+B-ADJP       0.83      0.67      0.74       438
+B-ADVP       0.81      0.81      0.81       866
+B-CONJP      0.67      0.44      0.53         9
+B-INTJ       1.00      0.50      0.67         2
+B-LST        0.00      0.00      0.00         5
+B-NP         0.96      0.96      0.96     12422
+B-PP         0.96      0.98      0.97      4811
+B-PRT        0.77      0.74      0.75       106
+B-SBAR       0.89      0.84      0.87       535
+B-VP         0.95      0.95      0.95      4658
+I-ADJP       0.86      0.54      0.66       167
+I-ADVP       0.63      0.48      0.55        89
+I-CONJP      0.77      0.77      0.77        13
+I-LST        0.00      0.00      0.00         2
+I-NP         0.96      0.96      0.96     14376
+I-PP         0.88      0.58      0.70        48
+I-SBAR       0.07      0.25      0.11         4
+I-VP         0.93      0.95      0.94      2646
+O            0.95      0.96      0.96      6180
+
+avg / total  0.95      0.95      0.95     47377
+
+Using decision trees:
+______________________________________________________
+precision    recall  f1-score   support
+
+B-ADJP       0.74      0.69      0.72       438
+B-ADVP       0.81      0.78      0.80       866
+B-CONJP      0.50      0.56      0.53         9
+B-INTJ       1.00      0.50      0.67         2
+B-LST        0.00      0.00      0.00         5
+B-NP         0.95      0.96      0.96     12422
+B-PP         0.96      0.97      0.97      4811
+B-PRT        0.68      0.74      0.71       106
+B-SBAR       0.84      0.81      0.82       535
+B-VP         0.95      0.95      0.95      4658
+I-ADJP       0.77      0.62      0.69       167
+I-ADVP       0.53      0.53      0.53        89
+I-CONJP      0.50      0.46      0.48        13
+I-LST        0.00      0.00      0.00         2
+I-NP         0.96      0.96      0.96     14376
+I-PP         0.73      0.69      0.71        48
+I-SBAR       0.19      0.75      0.30         4
+I-VP         0.94      0.94      0.94      2646
+O            0.96      0.96      0.96      6180
+
+avg / total  0.95      0.95      0.95     47377
