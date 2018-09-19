@@ -43,11 +43,11 @@ def train(corpus):
 
     # We determine the best association
     pos_chunk = {}
-    """
-    Fill in code so that for each part of speech, you select the most frequent chunk.
-    You will build a dictionary with key values:
-    pos_chunk[pos] = most frequent chunk for pos
-    """
+    for key in chunk_dist:
+        dict = chunk_dist[key]
+        max_value = max(dict.values())
+        pos_chunk[key] = [key for key, value in dict.items() if value == max_value][0]
+
     return pos_chunk
 
 
