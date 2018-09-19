@@ -1,0 +1,2 @@
+Baseline
+1. It only considers the chunk tag most frequently associated with the current part-of-speech tag so it does not consider other chunk tags and thereby the baseline is lower.
