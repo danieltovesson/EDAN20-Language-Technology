@@ -72,10 +72,8 @@ def extract_features_sent(sentence, w_size, feature_names):
         for j in range(2 * w_size + 1):
             x.append(padded_sentence[i + j][1])
         # The chunks (Up to the word)
-        """
         for j in range(w_size):
-            feature_line.append(padded_sentence[i + j][2])
-        """
+            x.append(padded_sentence[i + j][2])
         # We represent the feature vector as a dictionary
         X.append(dict(zip(feature_names, x)))
         # The classes are stored in a list
@@ -86,10 +84,21 @@ def extract_features_sent(sentence, w_size, feature_names):
 def predict(test_sentences, feature_names, f_out):
     for test_sentence in test_sentences:
         X_test_dict, y_test = extract_features_sent(test_sentence, w_size, feature_names)
-        # Vectorize the test sentence and one hot encoding
-        X_test = vec.transform(X_test_dict)
-        # Predicts the chunks and returns numbers
-        y_test_predicted = classifier.predict(X_test)
+
+        first = "BOS"
+        second = "BOS"
+        y_test_predicted = []
+        for word in X_test_dict:
+            word['c_p1'] = 'BOS'
+            word['c_p2'] = 'BOS'
+            word['c_p1'] = first
+            word['c_p2'] = second
+            second = first
+            x_temp = vec.transform(word)
+            x_pred = classifier.predict(X_test)
+            first = str(x_pred[0])
+            y_test_predicted.append(first)
+
         # Appends the predicted chunks as a last column and saves the rows
         rows = test_sentence.splitlines()
         rows = [rows[i] + ' ' + y_test_predicted[i] for i in range(len(rows))]
@@ -105,7 +114,7 @@ if __name__ == '__main__':
     test_corpus = '../test.txt'
     w_size = 2  # The size of the context window to the left and right of the word
     feature_names = ['word_n2', 'word_n1', 'word', 'word_p1', 'word_p2',
-                     'pos_n2', 'pos_n1', 'pos', 'pos_p1', 'pos_p2']
+                     'pos_n2', 'pos_n1', 'pos', 'pos_p1', 'pos_p2', 'c_p2', 'c_p1']
 
     train_sentences = conll_reader.read_sentences(train_corpus)
 
@@ -122,7 +131,7 @@ if __name__ == '__main__':
 
     training_start_time = time.clock()
     print("Training the model...")
-    classifier = svm.SVC()
+    classifier = linear_model.LogisticRegression(penalty='l2', dual=True, solver='liblinear')
     model = classifier.fit(X, y)
     print(model)
 

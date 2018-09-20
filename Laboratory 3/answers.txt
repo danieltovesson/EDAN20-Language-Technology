@@ -4,7 +4,7 @@ Baseline
 
 Using Machine Learning
 
-1. A list of features, where each feature vector is a dictionary. It is the same vector used.
+1. Yes, it is also using a window of five words
 2. Very good performance => 0.95.
 3. Yes, down to 0.92.
 4. The classifier used is linear_model. This produces:
