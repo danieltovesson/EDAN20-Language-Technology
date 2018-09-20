@@ -89,7 +89,6 @@ def predict(test_sentences, feature_names, f_out):
         second = "BOS"
         y_test_predicted = []
         for word in X_test_dict:
-            print(word)
             word['c_p1'] = 'BOS'
             word['c_p2'] = 'BOS'
             word['c_p1'] = first
