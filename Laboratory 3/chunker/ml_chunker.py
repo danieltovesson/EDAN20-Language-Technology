@@ -89,13 +89,14 @@ def predict(test_sentences, feature_names, f_out):
         second = "BOS"
         y_test_predicted = []
         for word in X_test_dict:
+            print(word)
             word['c_p1'] = 'BOS'
             word['c_p2'] = 'BOS'
             word['c_p1'] = first
             word['c_p2'] = second
             second = first
             x_temp = vec.transform(word)
-            x_pred = classifier.predict(X_test)
+            x_pred = classifier.predict(x_temp)
             first = str(x_pred[0])
             y_test_predicted.append(first)
 
