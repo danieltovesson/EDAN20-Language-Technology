@@ -54,6 +54,52 @@ def split_rows(sentences, column_names):
         new_sentences.append(sentence)
     return new_sentences
 
+def extract_subject_verb_pairs(formatted_corpus):
+    import operator
+    subject_verb_pairs = {}
+    tot_num_pairs = 0
+    for sentence in formatted_corpus:
+        for word in sentence:
+            if (word['deprel'] == 'SS'):
+                head = sentence[int(word['head'])]
+                subject = str.lower(word['form'])
+                verb =  str.lower(head['form'])
+                chunk = (subject, verb)
+                tot_num_pairs += 1
+                if chunk in subject_verb_pairs:
+                    subject_verb_pairs[chunk] += 1
+                else:
+                    subject_verb_pairs[chunk] = 1
+    subject_verb_pairs = sorted(subject_verb_pairs.items(), key=operator.itemgetter(1))
+    return (subject_verb_pairs, tot_num_pairs)
+
+def extract_subject_verb_object_triples(formatted_corpus):
+    import operator
+    subject_verb_object_triples = {}
+    tot_num_triples = 0
+    for sentence in formatted_corpus:
+        subjects = []
+        objects = []
+        for word in sentence:
+            if (word['deprel'] == 'SS'):
+                subjects.append(word)
+            if (word['deprel'] == 'OO'):
+                objects.append(word)
+        for s in subjects:
+            for o in objects:
+                if s['head'] == o['head']:
+                    head = sentence[int(s['head'])]
+                    subject = str.lower(s['form'])
+                    verb = str.lower(head['form'])
+                    object = str.lower(o['form'])
+                    chunk = (subject, verb, object)
+                    tot_num_triples += 1
+                    if chunk in subject_verb_object_triples:
+                        subject_verb_object_triples[chunk] += 1
+                    else:
+                        subject_verb_object_triples[chunk] = 1
+    subject_verb_object_triples = sorted(subject_verb_object_triples.items(), key=operator.itemgetter(1))
+    return (subject_verb_object_triples, tot_num_triples)
 
 def save(file, formatted_corpus, column_names):
     f_out = open(file, 'w')
@@ -83,8 +129,12 @@ if __name__ == '__main__':
 
     sentences = read_sentences(train_file)
     formatted_corpus = split_rows(sentences, column_names_2006)
-    print(train_file, len(formatted_corpus))
-    print(formatted_corpus[0])
+    #print(train_file, len(formatted_corpus))
+    #print(formatted_corpus)
+
+    (subject_verb_pairs, tot_num_pairs) = extract_subject_verb_pairs(formatted_corpus)
+
+    (subject_verb_object_triples, tot_num_triples) = extract_subject_verb_object_triples(formatted_corpus)
 
     column_names_u = ['id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc']
 
