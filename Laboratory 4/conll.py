@@ -77,9 +77,9 @@ def save(file, formatted_corpus, column_names):
 if __name__ == '__main__':
     column_names_2006 = ['id', 'form', 'lemma', 'cpostag', 'postag', 'feats', 'head', 'deprel', 'phead', 'pdeprel']
 
-    train_file = '../../corpus/conllx/sv/swedish_talbanken05_train.conll'
+    train_file = 'datasets/swedish_talbanken05_train.conll'
     # train_file = 'test_x'
-    test_file = '../../corpus/conllx/sv/swedish_talbanken05_test.conll'
+    test_file = 'datasets/swedish_talbanken05_test.conll'
 
     sentences = read_sentences(train_file)
     formatted_corpus = split_rows(sentences, column_names_2006)
