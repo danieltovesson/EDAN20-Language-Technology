@@ -159,5 +159,5 @@ if __name__ == '__main__':
         formatted_corpus = split_rows(sentences, column_names_u)
         formatted_sentences = format_sentences(formatted_corpus)
 
-    (subject_verb_pairs, tot_num_pairs) = extract_subject_verb_pairs(formatted_sentences)
-    (subject_verb_object_triples, tot_num_triples) = extract_subject_verb_object_triples(formatted_sentences)
+        (subject_verb_pairs, tot_num_pairs) = extract_subject_verb_pairs(formatted_sentences)
+        (subject_verb_object_triples, tot_num_triples) = extract_subject_verb_object_triples(formatted_sentences)
