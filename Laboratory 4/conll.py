@@ -54,14 +54,28 @@ def split_rows(sentences, column_names):
         new_sentences.append(sentence)
     return new_sentences
 
-def extract_subject_verb_pairs(formatted_corpus):
+def format_sentences(formatted_corpus):
+    formatted_sentences = []
+    for sentence in formatted_corpus:
+        new_sentence = []
+        for word in sentence:
+            new_word = {}
+            new_word[word['id']] = word
+            new_sentence.append(new_word)
+        formatted_sentences.append(new_sentence)
+    return formatted_sentences
+
+
+def extract_subject_verb_pairs(formatted_sentences):
     import operator
     subject_verb_pairs = {}
     tot_num_pairs = 0
-    for sentence in formatted_corpus:
-        for word in sentence:
-            if (word['deprel'] == 'SS'):
-                head = sentence[int(word['head'])]
+    for sentence in formatted_sentences:
+        for dict_word in sentence:
+            word = list(dict_word.values())[0]
+            if (word['deprel'] == 'SS' or word['deprel'] == 'nsubj'):
+                dict_head = sentence[int(word['head'])]
+                head = list(dict_head.values())[0]
                 subject = str.lower(word['form'])
                 verb =  str.lower(head['form'])
                 chunk = (subject, verb)
@@ -73,22 +87,24 @@ def extract_subject_verb_pairs(formatted_corpus):
     subject_verb_pairs = sorted(subject_verb_pairs.items(), key=operator.itemgetter(1))
     return (subject_verb_pairs, tot_num_pairs)
 
-def extract_subject_verb_object_triples(formatted_corpus):
+def extract_subject_verb_object_triples(formatted_sentences):
     import operator
     subject_verb_object_triples = {}
     tot_num_triples = 0
-    for sentence in formatted_corpus:
+    for sentence in formatted_sentences:
         subjects = []
         objects = []
-        for word in sentence:
-            if (word['deprel'] == 'SS'):
+        for dict_word in sentence:
+            word = list(dict_word.values())[0]
+            if (word['deprel'] == 'SS' or word['deprel'] == 'nsubj'):
                 subjects.append(word)
-            if (word['deprel'] == 'OO'):
+            if (word['deprel'] == 'OO' or word['deprel'] == 'obj'):
                 objects.append(word)
         for s in subjects:
             for o in objects:
                 if s['head'] == o['head']:
-                    head = sentence[int(s['head'])]
+                    dict_head = sentence[int(s['head'])]
+                    head = list(dict_head.values())[0]
                     subject = str.lower(s['form'])
                     verb = str.lower(head['form'])
                     object = str.lower(o['form'])
@@ -129,18 +145,19 @@ if __name__ == '__main__':
 
     sentences = read_sentences(train_file)
     formatted_corpus = split_rows(sentences, column_names_2006)
-    #print(train_file, len(formatted_corpus))
-    #print(formatted_corpus)
+    formatted_sentences = format_sentences(formatted_corpus)
 
-    (subject_verb_pairs, tot_num_pairs) = extract_subject_verb_pairs(formatted_corpus)
-
-    (subject_verb_object_triples, tot_num_triples) = extract_subject_verb_object_triples(formatted_corpus)
+    (subject_verb_pairs, tot_num_pairs) = extract_subject_verb_pairs(formatted_sentences)
+    (subject_verb_object_triples, tot_num_triples) = extract_subject_verb_object_triples(formatted_sentences)
 
     column_names_u = ['id', 'form', 'lemma', 'upostag', 'xpostag', 'feats', 'head', 'deprel', 'deps', 'misc']
 
-    files = get_files('../../corpus/ud-treebanks-v1.3/', 'train.conllu')
+    files = get_files('datasets/UD_Spanish-PUD', 'es_pud-ud-test.conllu')
+
     for train_file in files:
         sentences = read_sentences(train_file)
         formatted_corpus = split_rows(sentences, column_names_u)
-        print(train_file, len(formatted_corpus))
-        print(formatted_corpus[0])
+        formatted_sentences = format_sentences(formatted_corpus)
+
+    (subject_verb_pairs, tot_num_pairs) = extract_subject_verb_pairs(formatted_sentences)
+    (subject_verb_object_triples, tot_num_triples) = extract_subject_verb_object_triples(formatted_sentences)
