@@ -77,6 +77,7 @@ if __name__ == '__main__':
     feature_names_1 = ['stack0_word', 'stack0_POS', 'queue0_word', 'queue0_POS', 'can-la', 'can-re']
     feature_names_2 = ['stack0_word', 'stack0_POS', 'queue0_word', 'queue0_POS', 'can-la', 'can-re', 'stack1_word', 'stack1_POS', 'queue1_word', 'queue1_POS']
     feature_names_3 = ['stack0_word', 'stack0_POS', 'queue0_word', 'queue0_POS', 'can-la', 'can-re', 'stack1_word', 'stack1_POS', 'queue1_word', 'queue1_POS', 'stack_word_following_word', 'stack_following_POS', 'queue_following_word', 'queue_following_POS']
+    feature_names = feature_names_2
 
     sentences = conll.read_sentences(train_file)
     formatted_corpus = conll.split_rows(sentences, column_names_2006)
@@ -98,7 +99,7 @@ if __name__ == '__main__':
         graph['deprels']['0'] = 'ROOT'
         transitions = []
         while queue:
-            X.append(features.extract(stack, queue, graph, feature_names_2, sentence))
+            X.append(features.extract(stack, queue, graph, feature_names, sentence))
             stack, queue, graph, trans = reference(stack, queue, graph)
             transitions.append(trans)
             y.append(trans)
@@ -159,7 +160,7 @@ if __name__ == '__main__':
         graph['deprels']['0'] = 'ROOT'
         transitions = []
         while queue:
-            X_features = features.extract(stack, queue, graph, feature_names_2, sentence)
+            X_features = features.extract(stack, queue, graph, feature_names, sentence)
             X_transform = vec.transform(X_features)
             trans_pred = classifier.predict(X_transform)
             stack, queue, graph, trans = parse_ml(stack, queue, graph, trans_pred)
