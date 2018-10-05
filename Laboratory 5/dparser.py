@@ -5,6 +5,7 @@ __author__ = "Pierre Nugues"
 
 import transition
 import conll
+import features
 
 
 def reference(stack, queue, graph):
