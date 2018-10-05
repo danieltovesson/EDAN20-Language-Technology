@@ -148,6 +148,7 @@ if __name__ == '__main__':
     formatted_corpus = conll.split_rows(sentences, column_names_2006_test)
 
     dict_classes = formatY(y)
+    f_out = open('out', 'w', newline='\n')
     for sentence in formatted_corpus:
         stack = []
         queue = list(sentence)
@@ -163,3 +164,11 @@ if __name__ == '__main__':
             trans_pred = classifier.predict(X_transform)
             stack, queue, graph, trans = parse_ml(stack, queue, graph, trans_pred)
         stack, graph = transition.empty_stack(stack, graph)
+
+        for word in sentence:
+            word['head'] = graph['heads'][word['id']]
+            word['deprel'] = graph['deprels'][word['id']]
+            if int(word['id']) != 0:
+                f_out.write(word['id'] + '\t' + word['form'] + '\t' + word['lemma'] + '\t' + word['cpostag'] + '\t' + word['postag'] + '\t' + word['feats'] + '\t' + word['head'] + '\t' + word['deprel'] + '\t_\t_')
+                f_out.write('\n')
+        f_out.write('\n')
