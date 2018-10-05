@@ -51,10 +51,23 @@ def reference(stack, queue, graph):
     stack, queue, graph = transition.shift(stack, queue, graph)
     return stack, queue, graph, 'sh'
 
-    def parse_ml(stack, queue, graph, trans):
-        if stack and trans[:2] == 'ra':
-            stack, queue, graph = transition.right_arc(stack, queue, graph, trans[3:])
-            return stack, queue, graph, 'ra'
+def formatY(y):
+    classes = sorted(list(set(y)))
+    return dict(enumerate(classes))
+
+def parse_ml(stack, queue, graph, trans):
+    if stack and trans[:2] == 'ra':
+        stack, queue, graph = transition.right_arc(stack, queue, graph, trans[3:])
+        return stack, queue, graph, 'ra'
+    elif trans[:2] == 'la' and transition.can_leftarc(stack, graph):
+        stack, queue, graph = transition.left_arc(stack, queue, graph, trans[3:])
+        return stack, queue, graph, 'la'
+    elif trans[:2] == 're' and transition.can_reduce(stack, graph):
+        stack, queue, graph = transition.reduce(stack, queue, graph)
+        return stack, queue, graph, 're'
+    else:
+        stack, queue, graph = transition.shift(stack, queue, graph)
+        return stack, queue, graph, 'sh'
 
 if __name__ == '__main__':
     train_file = 'datasets/swedish_talbanken05_train.conll'
@@ -67,8 +80,6 @@ if __name__ == '__main__':
 
     sentences = conll.read_sentences(train_file)
     formatted_corpus = conll.split_rows(sentences, column_names_2006)
-
-    vec = DictVectorizer(sparse=True)
 
     print("Extracting the features...")
     sent_cnt = 0
@@ -100,9 +111,12 @@ if __name__ == '__main__':
         #print(transitions)
         #print(graph)
 
+    vec = DictVectorizer(sparse=True)
+
     modelFilename = 'model.sav'
     try:
         classifier = joblib.load(modelFilename)
+        vec.fit_transform(X)
         print("Model found in memory")
     except:
         print("Encoding the features...")
@@ -111,6 +125,8 @@ if __name__ == '__main__':
         print("Training the model...")
         classifier = linear_model.LogisticRegression(penalty='l2', dual=True, solver='liblinear')
         model = classifier.fit(X_fit_transform, y)
+        print(model)
+
         joblib.dump(model, modelFilename)
 
         X_transform = vec.transform(X)
@@ -131,6 +147,7 @@ if __name__ == '__main__':
     sentences = conll.read_sentences(test_file)
     formatted_corpus = conll.split_rows(sentences, column_names_2006_test)
 
+    dict_classes = formatY(y)
     for sentence in formatted_corpus:
         stack = []
         queue = list(sentence)
@@ -144,7 +161,5 @@ if __name__ == '__main__':
             X_features = features.extract(stack, queue, graph, feature_names_2, sentence)
             X_transform = vec.transform(X_features)
             trans_pred = classifier.predict(X_transform)
-            print(trans_pred)
-            trans = dict_classes[trans_pred[0]]
-            stack, queue, graph, trans = parse_ml(stack, queue, graph, trans)
+            stack, queue, graph, trans = parse_ml(stack, queue, graph, trans_pred)
         stack, graph = transition.empty_stack(stack, graph)
