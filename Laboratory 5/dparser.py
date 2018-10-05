@@ -50,9 +50,9 @@ if __name__ == '__main__':
     test_file = 'datasets/swedish_talbanken05_test_blind.conll'
     column_names_2006 = ['id', 'form', 'lemma', 'cpostag', 'postag', 'feats', 'head', 'deprel', 'phead', 'pdeprel']
     column_names_2006_test = ['id', 'form', 'lemma', 'cpostag', 'postag', 'feats']
-    feature_names_1 = ['stack_0_form', 'stack_0_pos', 'queue_0_form', 'queue_0_pos', 'can_la', 'can_re']
-    feature_names_2 = ['stack_0_form', 'stack_0_pos', 'queue_0_form', 'queue_0_pos', 'can_la', 'can_re', 'stack_1_form', 'stack_1_pos', 'queue_1_form', 'queue_1_pos']
-    feature_names_3 = ['stack_0_form', 'stack_0_pos', 'queue_0_form', 'queue_0_pos', 'can_la', 'can_re', 'stack_1_form', 'stack_1_pos', 'queue_1_form', 'queue_1_pos', 'stack_word_following_form', 'stack_following_pos', 'queue_following_form', 'queue_following_pos']
+    feature_names_1 = ['stack0_word', 'stack0_POS', 'queue0_word', 'queue0_POS', 'can-la', 'can-re']
+    feature_names_2 = ['stack0_word', 'stack0_POS', 'queue0_word', 'queue0_POS', 'can-la', 'can-re', 'stack1_word', 'stack1_POS', 'queue1_word', 'queue1_POS']
+    feature_names_3 = ['stack0_word', 'stack0_POS', 'queue0_word', 'queue0_POS', 'can-la', 'can-re', 'stack1_word', 'stack1_POS', 'queue1_word', 'queue1_POS', 'stack_word_following_word', 'stack_following_POS', 'queue_following_word', 'queue_following_POS']
 
     sentences = conll.read_sentences(train_file)
     formatted_corpus = conll.split_rows(sentences, column_names_2006)

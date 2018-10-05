@@ -36,4 +36,6 @@ def extract(stack, queue, graph, feature_names, sentence):
             features[12] = word['form']
             features[13] = word['postag']
 
+    features = dict(zip(feature_names, features))
+
     return features
