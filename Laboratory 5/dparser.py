@@ -7,6 +7,7 @@ import transition
 import conll
 import features
 
+import conll_reader
 from sklearn.feature_extraction import DictVectorizer
 #from sklearn import svm
 from sklearn import linear_model
@@ -93,9 +94,18 @@ if __name__ == '__main__':
 
     print("Encoding the features...")
     vec = DictVectorizer(sparse=True)
-    X = vec.fit_transform(X)
+    X_fit_transform = vec.fit_transform(X)
 
     print("Training the model...")
     classifier = linear_model.LogisticRegression(penalty='l2', dual=True, solver='liblinear')
-    model = classifier.fit(X, y)
+    model = classifier.fit(X_fit_transform, y)
     print(model)
+
+    X_transform = vec.transform(X)
+    y_predicted = classifier.predict(X_transform)
+    print("Classification report for classifier %s:\n%s\n"
+          % (classifier, metrics.classification_report(y, y_predicted)))
+
+    print("Predicting the train set...")
+    f_out = open('out', 'w')
+    predict(sentences, feature_names_1, f_out)
