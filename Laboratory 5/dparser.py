@@ -50,21 +50,6 @@ def reference(stack, queue, graph):
     stack, queue, graph = transition.shift(stack, queue, graph)
     return stack, queue, graph, 'sh'
 
-def predict(test_sentences, feature_names, f_out):
-    for test_sentence in test_sentences:
-        X_test_dict, y_test = extract_features_sent(test_sentence, w_size, feature_names)
-        # Vectorize the test sentence and one hot encoding
-        X_test = vec.transform(X_test_dict)
-        # Predicts the chunks and returns numbers
-        y_test_predicted = classifier.predict(X_test)
-        # Appends the predicted chunks as a last column and saves the rows
-        rows = test_sentence.splitlines()
-        rows = [rows[i] + ' ' + y_test_predicted[i] for i in range(len(rows))]
-        for row in rows:
-            f_out.write(row + '\n')
-        f_out.write('\n')
-    f_out.close()
-
 if __name__ == '__main__':
     train_file = 'datasets/swedish_talbanken05_train.conll'
     test_file = 'datasets/swedish_talbanken05_test_blind.conll'
@@ -94,7 +79,7 @@ if __name__ == '__main__':
         graph['deprels']['0'] = 'ROOT'
         transitions = []
         while queue:
-            X.append(features.extract(stack, queue, graph, feature_names_1, sentence))
+            X.append(features.extract(stack, queue, graph, feature_names_2, sentence))
             stack, queue, graph, trans = reference(stack, queue, graph)
             transitions.append(trans)
             y.append(trans)
@@ -107,20 +92,26 @@ if __name__ == '__main__':
         #print(transitions)
         #print(graph)
 
-    print("Encoding the features...")
-    vec = DictVectorizer(sparse=True)
-    X_fit_transform = vec.fit_transform(X)
+    # print("Encoding the features...")
+    # vec = DictVectorizer(sparse=True)
+    # X_fit_transform = vec.fit_transform(X)
+    #
+    # print("Training the model...")
+    # classifier = linear_model.LogisticRegression(penalty='l2', dual=True, solver='liblinear')
+    # model = classifier.fit(X_fit_transform, y)
+    # print(model)
+    #
+    # X_transform = vec.transform(X)
+    # y_predicted = classifier.predict(X_transform)
+    # print("Classification report for classifier %s:\n%s\n"
+    #       % (classifier, metrics.classification_report(y, y_predicted)))
 
-    print("Training the model...")
-    classifier = linear_model.LogisticRegression(penalty='l2', dual=True, solver='liblinear')
-    model = classifier.fit(X_fit_transform, y)
-    print(model)
-
-    X_transform = vec.transform(X)
-    y_predicted = classifier.predict(X_transform)
-    print("Classification report for classifier %s:\n%s\n"
-          % (classifier, metrics.classification_report(y, y_predicted)))
-
-    print("Predicting the train set...")
-    f_out = open('out', 'w')
-    predict(sentences, feature_names_1, f_out)
+    keys = ['stack0_POS', 'stack1_POS', 'stack0_word', 'stack1_word', 'queue0_POS', 'queue1_POS', 'queue0_word', 'queue1_word', 'can-re', 'can-la', 'stack_following_POS', 'stack_word_following_word', 'queue_following_POS', 'queue_following_word']
+    for i in range(9):
+        x = []
+        for key in keys:
+            if key in X[i]:
+                x.append(X[i][key])
+        print("x = ", end='')
+        print(x)
+        print("y = " + y[i])

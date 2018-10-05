@@ -4,7 +4,7 @@ def extract(stack, queue, graph, feature_names, sentence):
     features = []
 
     # Feature set 1
-    features.extend(['', '', '', '', '', ''])
+    features.extend(['nil', 'nil', 'nil', 'nil', 'nil', 'nil'])
     if len(stack) >= 1:
         features[0] = stack[0]['form']
         features[1] = stack[0]['postag']
@@ -16,7 +16,7 @@ def extract(stack, queue, graph, feature_names, sentence):
 
     # Feature set 2
     if len(feature_names) == 10 or len(feature_names) == 14:
-        features.extend(['', '', '', ''])
+        features.extend(['nil', 'nil', 'nil', 'nil'])
         if len(stack) >= 2:
             features[6] = stack[1]['form']
             features[7] = stack[1]['postag']
@@ -26,7 +26,7 @@ def extract(stack, queue, graph, feature_names, sentence):
 
     # Feature set 3
     if len(feature_names) == 14:
-        features.extend(['', '', '', ''])
+        features.extend(['nil', 'nil', 'nil', 'nil'])
         if len(stack) >= 1 and len(sentence) > int(stack[0]['id']) + 1:
             word = sentence[int(stack[0]['id']) + 1]
             features[10] = word['form']
