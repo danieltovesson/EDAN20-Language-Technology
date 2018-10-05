@@ -70,10 +70,13 @@ if __name__ == '__main__':
         graph['deprels'] = {}
         graph['deprels']['0'] = 'ROOT'
         transitions = []
+        X = []
+        y = []
         while queue:
-            features.extract(stack, queue, graph, feature_names_1, sentence)
+            X.append(features.extract(stack, queue, graph, feature_names_1, sentence))
             stack, queue, graph, trans = reference(stack, queue, graph)
             transitions.append(trans)
+            y.extend(transitions)
         stack, graph = transition.empty_stack(stack, graph)
         print('Equal graphs:', transition.equal_graphs(sentence, graph))
 
