@@ -7,6 +7,10 @@ import transition
 import conll
 import features
 
+from sklearn.feature_extraction import DictVectorizer
+#from sklearn import svm
+from sklearn import linear_model
+#from sklearn.tree import DecisionTreeClassifier
 
 def reference(stack, queue, graph):
     """
@@ -57,11 +61,14 @@ if __name__ == '__main__':
     sentences = conll.read_sentences(train_file)
     formatted_corpus = conll.split_rows(sentences, column_names_2006)
 
+    print("Extracting the features...")
     sent_cnt = 0
+    X = []
+    y = []
     for sentence in formatted_corpus:
         sent_cnt += 1
-        if sent_cnt % 1000 == 0:
-            print(sent_cnt, 'sentences on', len(formatted_corpus), flush=True)
+        #if sent_cnt % 1000 == 0:
+            #print(sent_cnt, 'sentences on', len(formatted_corpus), flush=True)
         stack = []
         queue = list(sentence)
         graph = {}
@@ -70,18 +77,25 @@ if __name__ == '__main__':
         graph['deprels'] = {}
         graph['deprels']['0'] = 'ROOT'
         transitions = []
-        X = []
-        y = []
         while queue:
             X.append(features.extract(stack, queue, graph, feature_names_1, sentence))
             stack, queue, graph, trans = reference(stack, queue, graph)
             transitions.append(trans)
-            y.extend(transitions)
+            y.append(trans)
         stack, graph = transition.empty_stack(stack, graph)
-        print('Equal graphs:', transition.equal_graphs(sentence, graph))
+        #print('Equal graphs:', transition.equal_graphs(sentence, graph))
 
         # Poorman's projectivization to have well-formed graphs.
         for word in sentence:
             word['head'] = graph['heads'][word['id']]
-        print(transitions)
-        print(graph)
+        #print(transitions)
+        #print(graph)
+
+    print("Encoding the features...")
+    vec = DictVectorizer(sparse=True)
+    X = vec.fit_transform(X)
+
+    print("Training the model...")
+    classifier = linear_model.LogisticRegression(penalty='l2', dual=True, solver='liblinear')
+    model = classifier.fit(X, y)
+    print(model)
