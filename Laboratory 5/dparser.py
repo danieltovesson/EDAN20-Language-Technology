@@ -12,6 +12,7 @@ from sklearn.feature_extraction import DictVectorizer
 #from sklearn import svm
 from sklearn import linear_model
 #from sklearn.tree import DecisionTreeClassifier
+from sklearn import metrics
 
 def reference(stack, queue, graph):
     """
@@ -49,6 +50,20 @@ def reference(stack, queue, graph):
     stack, queue, graph = transition.shift(stack, queue, graph)
     return stack, queue, graph, 'sh'
 
+def predict(test_sentences, feature_names, f_out):
+    for test_sentence in test_sentences:
+        X_test_dict, y_test = extract_features_sent(test_sentence, w_size, feature_names)
+        # Vectorize the test sentence and one hot encoding
+        X_test = vec.transform(X_test_dict)
+        # Predicts the chunks and returns numbers
+        y_test_predicted = classifier.predict(X_test)
+        # Appends the predicted chunks as a last column and saves the rows
+        rows = test_sentence.splitlines()
+        rows = [rows[i] + ' ' + y_test_predicted[i] for i in range(len(rows))]
+        for row in rows:
+            f_out.write(row + '\n')
+        f_out.write('\n')
+    f_out.close()
 
 if __name__ == '__main__':
     train_file = 'datasets/swedish_talbanken05_train.conll'
