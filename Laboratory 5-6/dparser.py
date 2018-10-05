@@ -59,15 +59,14 @@ def parse_ml(stack, queue, graph, trans):
     if stack and trans[:2] == 'ra':
         stack, queue, graph = transition.right_arc(stack, queue, graph, trans[3:])
         return stack, queue, graph, 'ra'
-    elif trans[:2] == 'la' and transition.can_leftarc(stack, graph):
+    if stack and trans[:2] == 'la' and transition.can_leftarc(stack, graph):
         stack, queue, graph = transition.left_arc(stack, queue, graph, trans[3:])
         return stack, queue, graph, 'la'
-    elif trans[:2] == 're' and transition.can_reduce(stack, graph):
+    if stack and trans[:2] == 're' and transition.can_reduce(stack, graph):
         stack, queue, graph = transition.reduce(stack, queue, graph)
         return stack, queue, graph, 're'
-    else:
-        stack, queue, graph = transition.shift(stack, queue, graph)
-        return stack, queue, graph, 'sh'
+    stack, queue, graph = transition.shift(stack, queue, graph)
+    return stack, queue, graph, 'sh'
 
 if __name__ == '__main__':
     train_file = 'datasets/swedish_talbanken05_train.conll'
@@ -77,7 +76,7 @@ if __name__ == '__main__':
     feature_names_1 = ['stack0_word', 'stack0_POS', 'queue0_word', 'queue0_POS', 'can-la', 'can-re']
     feature_names_2 = ['stack0_word', 'stack0_POS', 'queue0_word', 'queue0_POS', 'can-la', 'can-re', 'stack1_word', 'stack1_POS', 'queue1_word', 'queue1_POS']
     feature_names_3 = ['stack0_word', 'stack0_POS', 'queue0_word', 'queue0_POS', 'can-la', 'can-re', 'stack1_word', 'stack1_POS', 'queue1_word', 'queue1_POS', 'stack_word_following_word', 'stack_following_POS', 'queue_following_word', 'queue_following_POS']
-    feature_names = feature_names_2
+    feature_names = feature_names_1
 
     sentences = conll.read_sentences(train_file)
     formatted_corpus = conll.split_rows(sentences, column_names_2006)
