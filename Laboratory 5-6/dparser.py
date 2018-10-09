@@ -56,6 +56,7 @@ def formatY(y):
     return dict(enumerate(classes))
 
 def parse_ml(stack, queue, graph, trans):
+    trans = trans[0]
     if stack and trans[:2] == 'ra':
         stack, queue, graph = transition.right_arc(stack, queue, graph, trans[3:])
         return stack, queue, graph, 'ra'
