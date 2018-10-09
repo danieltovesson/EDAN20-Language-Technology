@@ -51,10 +51,6 @@ def reference(stack, queue, graph):
     stack, queue, graph = transition.shift(stack, queue, graph)
     return stack, queue, graph, 'sh'
 
-def formatY(y):
-    classes = sorted(list(set(y)))
-    return dict(enumerate(classes))
-
 def parse_ml(stack, queue, graph, trans):
     trans = trans[0]
     if stack and trans[:2] == 'ra':
@@ -78,6 +74,14 @@ if __name__ == '__main__':
     feature_names_2 = ['stack0_word', 'stack0_POS', 'queue0_word', 'queue0_POS', 'can-la', 'can-re', 'stack1_word', 'stack1_POS', 'queue1_word', 'queue1_POS']
     feature_names_3 = ['stack0_word', 'stack0_POS', 'queue0_word', 'queue0_POS', 'can-la', 'can-re', 'stack1_word', 'stack1_POS', 'queue1_word', 'queue1_POS', 'stack_word_following_word', 'stack_following_POS', 'queue_following_word', 'queue_following_POS']
     feature_names = feature_names_1
+    model_name_1 = 'model1'
+    model_name_2 = 'model2'
+    model_name_3 = 'model3'
+    model_name = model_name_1
+    out_file_name_1 = 'out1'
+    out_file_name_2 = 'out2'
+    out_file_name_3 = 'out3'
+    out_file_name = out_file_name_1
 
     sentences = conll.read_sentences(train_file)
     formatted_corpus = conll.split_rows(sentences, column_names_2006)
@@ -114,7 +118,7 @@ if __name__ == '__main__':
 
     vec = DictVectorizer(sparse=True)
 
-    modelFilename = 'model.sav'
+    modelFilename = model_name + '.sav'
     try:
         classifier = joblib.load(modelFilename)
         vec.fit_transform(X)
@@ -148,8 +152,7 @@ if __name__ == '__main__':
     sentences = conll.read_sentences(test_file)
     formatted_corpus = conll.split_rows(sentences, column_names_2006_test)
 
-    dict_classes = formatY(y)
-    f_out = open('out', 'w', newline='\n')
+    f_out = open(out_file_name, 'w', newline='\n')
     for sentence in formatted_corpus:
         stack = []
         queue = list(sentence)
